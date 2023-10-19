@@ -26,11 +26,12 @@
 
         shellHook = ''
           set -e
+          export PGUSER=postgres
           export PGDIR=$(pwd)/.postgres
           export PGHOST=$PGDIR
           export PGDATA=$PGDIR/data
           export PGLOG=$PGDIR/log
-          export DATABASE_URL="postgresql:///postgres?host=$PGDIR"
+          export DATABASE_URL="postgresql:///postgres?host=$PGDIR&user=$PGUSER"
 
           if test ! -d "$PGDIR"; then
               mkdir "$PGDIR"
@@ -38,7 +39,7 @@
 
           if [ ! -d "$PGDATA" ]; then
               echo 'Initializing postgresql database...'
-              initdb "$PGDATA" --auth=trust >/dev/null
+              initdb "$PGDATA" --auth=trust >/dev/null -U "$PGUSER"
           fi
 
           nix build .#postgres
@@ -62,11 +63,11 @@
                 echo 'starting postgresql'
                 pg_ctl start \
                     -l "$PGLOG" \
-                    -o "-c listen_addresses= -c unix_socket_directories=$PGDIR"
+                    -o "-c listen_addresses='0.0.0.0' -c unix_socket_directories=$PGDIR"
             else
                 echo 'postgresql is already running'
             fi
-            echo "connect to postgres with 'psql -U $(whoami) -d postgres'"
+            echo "connect to postgres with 'psql -U $PGUSER -d postgres'"
         }
 
         case "$1" in
