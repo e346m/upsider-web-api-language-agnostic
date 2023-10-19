@@ -12,6 +12,14 @@ db: ## start postgres
 migrate-create: ## make migrate-create fileName=
 	@migrate create -ext sql -dir db/migrations ${fileName}
 
+.PHONY: migrate-up
+migrate-up: ## run migration schema
+	@migrate -path ./db/migrations -database $DATABASE_URL up
+
+.PHONY: migrate-down
+migrate-down: ## rollback migration schema
+	@migrate -path ./db/migrations -database $DATABASE_URL down
+
 .PHONY: help
 help:
 	@echo 'Usage: make [target]'
