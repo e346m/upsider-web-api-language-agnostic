@@ -1,0 +1,4 @@
+.postgres
+
+# dynamically created through shellHook
+result
