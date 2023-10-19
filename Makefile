@@ -4,7 +4,7 @@
 dev: db ## start api server
 	@echo "start"
 
-.PHONEY: db
+.PHONY: db
 db: ## start postgres
 	@./result/bin/postgres.sh start
 
