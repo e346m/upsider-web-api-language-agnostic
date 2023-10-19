@@ -8,17 +8,25 @@ dev: db ## start api server
 db: ## start postgres
 	@./result/bin/postgres.sh start
 
+.PHONY: db-down
+db-down: ## stop postgres
+	@./result/bin/postgres.sh stop
+
 .PHONY: migrate-create
 migrate-create: ## make migrate-create fileName=
 	@migrate create -ext sql -dir db/migrations ${fileName}
 
 .PHONY: migrate-up
 migrate-up: ## run migration schema
-	@migrate -path ./db/migrations -database $DATABASE_URL up
+	@migrate -path ./db/migrations -database "$(DATABASE_URL)" up
 
 .PHONY: migrate-down
 migrate-down: ## rollback migration schema
-	@migrate -path ./db/migrations -database $DATABASE_URL down
+	@migrate -path ./db/migrations -database "$(DATABASE_URL)" down
+
+PHONY: sqlboiler-gen
+sqlboiler-gen: ## generate code from schema
+	@sqlboiler psql -c ./config/sqlboiler.toml
 
 .PHONY: help
 help:
