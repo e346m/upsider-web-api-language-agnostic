@@ -14,17 +14,17 @@ type (
 	}
 
 	Database struct {
-		DBType string `yaml:"dbType"`
-		DBUrl  string `yaml:"dbUrl"`
+		Type string `yaml:"type"`
+		Url  string `yaml:"url"`
 	}
 )
 
 func (c *Config) DBType() string {
-	return c.Database.DBType
+	return c.Database.Type
 }
 
 func (c *Config) DBUrl() string {
-	return c.Database.DBUrl
+	return c.Database.Url
 }
 
 func LoadConfig() (config *Config) {

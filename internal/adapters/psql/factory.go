@@ -11,11 +11,18 @@ var txKey = struct{}{}
 
 type PSQL struct {
 	db *sql.DB
+	id Identifier
 }
 
-func NewPSQLClient(db *sql.DB) *PSQL {
+type Identifier interface {
+	StringToBinary(string) ([]byte, error)
+	BinaryToString([]byte) (string, error)
+}
+
+func NewPSQLClient(db *sql.DB, id Identifier) *PSQL {
 	return &PSQL{
 		db: db,
+		id: id,
 	}
 }
 

@@ -14,7 +14,7 @@ type Member struct {
 	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Organization
+	*Organization
 }
 
 func generateFromPassword(plainPassword string) ([]byte, error) {
