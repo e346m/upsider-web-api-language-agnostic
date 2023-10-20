@@ -28,6 +28,17 @@ PHONY: sqlboiler-gen
 sqlboiler-gen: ## generate code from schema
 	@sqlboiler psql -c ./config/sqlboiler.toml
 
+RED=\033[31m
+GREEN=\033[32m
+RESET=\033[0m
+
+COLORIZE_PASS=sed ''/PASS/s//$$(printf "$(GREEN)PASS$(RESET)")/''
+COLORIZE_FAIL=sed ''/FAIL/s//$$(printf "$(RED)FAIL$(RESET)")/''
+
+PHONY: test
+test: ## run all test
+	@go test -v ./... | $(COLORIZE_PASS) | $(COLORIZE_FAIL)
+
 .PHONY: help
 help:
 	@echo 'Usage: make [target]'
