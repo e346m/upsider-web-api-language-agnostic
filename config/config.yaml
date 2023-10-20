@@ -1,0 +1,3 @@
+database:
+  dbType: pgx
+  dbUrl: ${DATABASE_URL}
