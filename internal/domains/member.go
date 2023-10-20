@@ -17,9 +17,13 @@ type Member struct {
 	Organization
 }
 
-func (m *Member) GeneratePassword(plainPassword string) error {
+func generateFromPassword(plainPassword string) ([]byte, error) {
 	b := []byte(plainPassword)
-	hashed, err := bcrypt.GenerateFromPassword(b, bcrypt.DefaultCost)
+	return bcrypt.GenerateFromPassword(b, bcrypt.DefaultCost)
+}
+
+func (m *Member) SetGeneratePassword(plainPassword string) error {
+	hashed, err := generateFromPassword(plainPassword)
 	if errors.Is(err, bcrypt.ErrPasswordTooLong) {
 		return &DomainError{
 			Kind:    Validation,
