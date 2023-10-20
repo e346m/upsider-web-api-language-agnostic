@@ -6,6 +6,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.23.2
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.6.0
+	github.com/go-playground/validator/v10 v10.15.5
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/oklog/ulid/v2 v2.1.0
@@ -23,8 +24,11 @@ require (
 
 require (
 	github.com/ericlagergren/decimal v0.0.0-20190420051523-6335edbaa640 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -37,6 +41,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
+	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

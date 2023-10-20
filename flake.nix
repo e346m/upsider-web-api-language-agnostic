@@ -18,7 +18,7 @@
         buildInputs = [
           go_1_21
           postgresql_16
-          openapi-generator-cli
+          oapi-codegen
           sqlboiler.packages.${system}.sqlboiler
           go-migrate
           air

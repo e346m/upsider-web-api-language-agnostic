@@ -1,0 +1,63 @@
+openapi: 3.0.0
+info:
+  title: upsider-wala
+  version: '1.0'
+  contact:
+    name: Eiji Mishiro
+    email: eiji.346g@confide.jp
+  license:
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+    name: Apache 2.0
+  description: |
+    コーディングテストで利用するスーパー支払い君.comのAPIエンドポイントの仕様を一部まとめたもの
+servers:
+  - url: 'http://localhost:8080/api'
+tags:
+  - name: core
+    description: coreコンテキストの適応
+paths:
+  /sign-in:
+    post:
+      responses:
+        '200':
+          $ref: "#/components/responses/SignInResponse"
+      operationId: signIn
+      description: sign in用のエンドポイント
+      tags:
+        - core
+      requestBody:
+          $ref: "#/components/requestBodies/SignInRequest"
+components:
+  schemas:
+  requestBodies:
+    SignInRequest:
+      description: Sign in request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                x-oapi-codegen-extra-tags:
+                  validate: required
+              password:
+                type: string
+                x-oapi-codegen-extra-tags:
+                  validate: required
+            required:
+              - email
+              - password
+  parameters:
+  responses:
+    SignInResponse:
+      description: Sign in response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token

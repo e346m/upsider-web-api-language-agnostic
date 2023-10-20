@@ -10,6 +10,7 @@ import (
 	"github.com/e346m/upsider-wala/config"
 	"github.com/e346m/upsider-wala/di"
 	"github.com/e346m/upsider-wala/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -36,12 +37,14 @@ func main() {
 		conn.Close()
 	}()
 
-	_ = di.New(conn, cfg, tp.Tracer("upsider-wala"), identifier)
+	handler := di.New(conn, cfg, tp.Tracer("upsider-wala"), identifier)
 
 	e := initEcho()
+
 	api := e.Group("/api")
 	{
 		api.GET("/health", healthCheck)
+		api.POST("/sign-in", handler.SignIn)
 	}
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
@@ -83,6 +86,7 @@ func initEcho() *echo.Echo {
 	e.Use(echoRecover())
 	e.Use(echoSecureHeaderConfig())
 	e.Use(otelecho.Middleware("wala"))
+	e.Validator = &CustomValidator{validator: validator.New()}
 
 	return e
 }
@@ -102,4 +106,15 @@ func echoSecureHeaderConfig() echo.MiddlewareFunc {
 		HSTSMaxAge:            3600,
 		ContentSecurityPolicy: "default-src 'self'",
 	})
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
 }

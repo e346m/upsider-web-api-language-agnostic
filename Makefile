@@ -1,17 +1,24 @@
 .DEFAULT_GOAL := help
 
 .PHONY: dev
-dev: db migrate-up ## start api server
+dev: download db migrate-up seed## start api server
 	@air -c air.toml
-
 
 .PHONY: db
 db: ## start postgres
 	@./result/bin/postgres.sh start
 
+.PHONY: download
+download: ## start postgres
+	@go mod download
+
 .PHONY: db-down
 db-down: ## stop postgres
 	@./result/bin/postgres.sh stop
+
+.PHONY: seed
+seed: ## stop postgres
+	@go run cmd/seed/main.go
 
 .PHONY: migrate-create
 migrate-create: ## make migrate-create fileName=
@@ -28,6 +35,11 @@ migrate-down: ## rollback migration schema
 PHONY: sqlboiler-gen
 sqlboiler-gen: ## generate code from schema
 	@sqlboiler psql -c ./config/sqlboiler.toml
+
+
+PHONY: api-schema-type-gen
+api-schema-type-gen: ## generate response and request struct from openapi.yaml
+	@oapi-codegen -generate types -package http openapi.yaml > internal/ports/http/types.gen.go
 
 RED=\033[31m
 GREEN=\033[32m
