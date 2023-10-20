@@ -1,11 +1,15 @@
 package usecases
 
+import "go.opentelemetry.io/otel/trace"
+
 type Usecase struct {
-	repo RepositoryKeeper
+	repo   RepositoryKeeper
+	tracer trace.Tracer
 }
 
-func NewUsecase(repo RepositoryKeeper) *Usecase {
+func NewUsecase(repo RepositoryKeeper, tracer trace.Tracer) *Usecase {
 	return &Usecase{
-		repo: repo,
+		repo:   repo,
+		tracer: tracer,
 	}
 }

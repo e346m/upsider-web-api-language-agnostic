@@ -26,6 +26,7 @@
 
         shellHook = ''
           set -e
+          export PORT=8080
           export PGUSER=postgres
           export PGDIR=$(pwd)/.postgres
           export PGHOST=$PGDIR

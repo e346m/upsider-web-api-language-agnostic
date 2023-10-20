@@ -1,8 +1,9 @@
 .DEFAULT_GOAL := help
 
 .PHONY: dev
-dev: db ## start api server
-	@echo "start"
+dev: db migrate-up ## start api server
+	@air -c air.toml
+
 
 .PHONY: db
 db: ## start postgres

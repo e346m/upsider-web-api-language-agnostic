@@ -7,15 +7,13 @@ import (
 	"github.com/e346m/upsider-wala/internal/adapters/psql"
 	"github.com/e346m/upsider-wala/internal/ports/http"
 	"github.com/e346m/upsider-wala/internal/usecases"
+	"github.com/e346m/upsider-wala/utils"
+	"go.opentelemetry.io/otel/trace"
 )
 
-func NewCollectorHTTP(db *sql.DB, cfg *config.Config) *http.Handler {
-	service := newCollectorSet(db, cfg)
-	handler := http.NewHandler(service)
+func New(db *sql.DB, cfg *config.Config, tp trace.Tracer, identifier *utils.Identifier) *http.Handler {
+	psqlClient := psql.NewPSQLClient(db, identifier)
+	usecase := usecases.NewUsecase(psqlClient, tp)
+	handler := http.NewHandler(usecase)
 	return handler
-}
-
-func newCollectorSet(db *sql.DB, cfg *config.Config) *usecases.Usecase {
-	psqlClient := psql.NewPSQLClient(db)
-	return usecases.NewUsecase(psqlClient)
 }
