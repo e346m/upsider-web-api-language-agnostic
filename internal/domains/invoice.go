@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	commissionRate  = decimal.NewFromFloat(4)
-	consumptionRate = decimal.NewFromFloat(10)
+	commissionRate  = decimal.NewFromFloat(0.04)
+	consumptionRate = decimal.NewFromFloat(0.10)
 )
 
 const (
