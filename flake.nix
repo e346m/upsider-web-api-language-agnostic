@@ -22,6 +22,7 @@
           sqlboiler.packages.${system}.sqlboiler
           go-migrate
           air
+          git-crypt
         ];
 
         shellHook = ''
