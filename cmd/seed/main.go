@@ -48,7 +48,7 @@ func main() {
 		Email:        "test@example.com",
 		Organization: org,
 	}
-	m.SetGeneratePassword("password")
+	domains.SetGeneratePassword("password", m)
 	client.SaveMember(ctx, m)
 	// clients
 	// invoice

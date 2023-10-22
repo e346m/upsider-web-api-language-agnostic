@@ -13,7 +13,7 @@ func TestSetGeneratePassword(t *testing.T) {
 				Password: "",
 			}
 			password := generateRandomString(73)
-			err := m.SetGeneratePassword(password)
+			err := SetGeneratePassword(password, m)
 
 			if err == nil {
 				t.Fatalf("test should fail")
@@ -28,7 +28,7 @@ func TestSetGeneratePassword(t *testing.T) {
 				Password: "",
 			}
 			password := generateRandomString(72)
-			err := m.SetGeneratePassword(password)
+			err := SetGeneratePassword(password, m)
 			if err != nil {
 				t.Fatalf("test should success but %v happens", err.Error())
 			}
@@ -42,10 +42,7 @@ func TestCheckMemberWithPassword(t *testing.T) {
 			password := generateRandomString(7)
 			invalid := ""
 			hashed, _ := generateFromPassword(password)
-			m := &Member{
-				Password: string(hashed),
-			}
-			err := m.CheckMemberWithPassword(invalid)
+			err := CheckMemberWithPassword(invalid, string(hashed))
 
 			if err == nil {
 				t.Fatalf("test should fail")
@@ -58,10 +55,7 @@ func TestCheckMemberWithPassword(t *testing.T) {
 		func(t *testing.T) {
 			password := generateRandomString(7)
 			hashed, _ := generateFromPassword(password)
-			m := &Member{
-				Password: string(hashed),
-			}
-			err := m.SetGeneratePassword(password)
+			err := CheckMemberWithPassword(password, string(hashed))
 			if err != nil {
 				t.Fatalf("test should success but %v happens", err.Error())
 			}
