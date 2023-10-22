@@ -42,7 +42,7 @@ func main() {
 	api := e.Group("/api")
 	{
 		api.GET("/health", healthCheck)
-		api.POST("/sign-in", handler.SignIn)
+		api.POST("/session", handler.SignIn)
 	}
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
