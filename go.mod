@@ -7,9 +7,11 @@ require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.15.5
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/oklog/ulid/v2 v2.1.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/viper v1.17.0
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.15.0
@@ -31,7 +33,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
