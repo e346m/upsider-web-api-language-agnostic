@@ -16,8 +16,16 @@ func (h *Handler) SignIn(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	accessToken, refreshToken, err := h.usecase.SignIn(c.Request().Context(), req.Email, req.Password)
+	if err != nil {
+		return errorResponse(err, c)
+	}
+
+	cookie := generateCookieWithRefreshToken(refreshToken)
+	c.SetCookie(cookie)
+
 	res := &SignInResponse{
-		Token: "test",
+		Token: accessToken,
 	}
 
 	return c.JSON(http.StatusOK, res)
