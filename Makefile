@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 .PHONY: dev
-dev: download db migrate-up seed## start api server
+dev: download db migrate-up seed ## start api server
 	@air -c air.toml
 
 .PHONY: db

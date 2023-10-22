@@ -23,6 +23,7 @@
           go-migrate
           air
           git-crypt
+          jq
         ];
 
         shellHook = ''
