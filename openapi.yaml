@@ -27,9 +27,45 @@ paths:
         - core
       requestBody:
           $ref: "#/components/requestBodies/SignInRequest"
+  /invoices:
+    post:
+      responses:
+        '200':
+          $ref: "#/components/responses/CreateInvoiceResponse"
+      operationId: createInvoice
+      description: 請求書作成用のエンドポイント
+      tags:
+        - core
+      requestBody:
+          $ref: "#/components/requestBodies/CreateInvoiceRequest"
 components:
   schemas:
   requestBodies:
+    CreateInvoiceRequest:
+      description: request for creating invoice
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              client_id:
+                type: string
+                x-oapi-codegen-extra-tags:
+                  validate: required
+              amount_billed:
+                type: number
+                x-oapi-codegen-extra-tags:
+                  validate: required
+              due_date:
+                type: string
+                format: date-time
+                example: "2006-01-02T15:04:05Z07:00"
+                x-oapi-codegen-extra-tags:
+                  validate: required
+            required:
+              - client_id
+              - amount_billed
+              - due_date
     SignInRequest:
       description: Sign in request
       content:
@@ -50,6 +86,34 @@ components:
               - password
   parameters:
   responses:
+    CreateInvoiceResponse:
+      description: Sign in response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              client_id:
+                type: string
+              amount_billed:
+                type: number
+              total_amount:
+                type: number
+              due_date:
+                type: string
+                format: date-time
+              issue_date:
+                type: string
+                format: date-time
+              status:
+                type: string
+            required:
+              - client_id
+              - amount_billed
+              - total_amount
+              - due_date
+              - issue_date
+              - status
     SignInResponse:
       description: Sign in response
       content:
