@@ -9,7 +9,6 @@ import (
 
 	"github.com/e346m/upsider-wala/config"
 	"github.com/e346m/upsider-wala/di"
-	"github.com/e346m/upsider-wala/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -27,7 +26,6 @@ func main() {
 	cfg := config.LoadConfig()
 	conn := initDB(cfg)
 	tp := initTracer(cfg)
-	identifier := utils.NewIdentifier()
 
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
@@ -37,7 +35,7 @@ func main() {
 		conn.Close()
 	}()
 
-	handler := di.New(conn, cfg, tp.Tracer("upsider-wala"), identifier)
+	handler := di.New(conn, cfg, tp.Tracer("upsider-wala"))
 
 	e := initEcho()
 

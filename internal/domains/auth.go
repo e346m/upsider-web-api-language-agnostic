@@ -25,10 +25,10 @@ func SetGeneratePassword(plainPassword string, m *Member) error {
 	return nil
 }
 
-func CheckMemberWithPassword(plainPassword, encriptedPassword string) error {
+func CheckMemberWithPassword(plainPassword, encryptedPassword string) error {
 	b := []byte(plainPassword)
-	err := bcrypt.CompareHashAndPassword([]byte(encriptedPassword), b)
-	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+	err := bcrypt.CompareHashAndPassword([]byte(encryptedPassword), b)
+	if err != nil {
 		return &DomainError{
 			Kind:    NotFound,
 			Message: "Member does not exist",
