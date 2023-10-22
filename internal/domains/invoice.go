@@ -33,10 +33,11 @@ type (
 		*Organization
 		*Client
 	}
-	InvoiceStatus int8
+	InvoiceStatus uint8
 	InvoiceOption struct {
 		CommissionRate  *float64
 		ConsumptionRate *float64
+		Status          *uint8
 	}
 )
 
@@ -44,6 +45,7 @@ func NewInvoice(opts ...InvoiceOption) *Invoice {
 	i := &Invoice{
 		CommissionRate:  commissionRate,
 		ConsumptionRate: consumptionRate,
+		Status:          waiting,
 		IssueDate:       time.Now(),
 	}
 
@@ -53,6 +55,11 @@ func NewInvoice(opts ...InvoiceOption) *Invoice {
 		}
 		if op.ConsumptionRate != nil {
 			i.ConsumptionRate = decimal.NewFromFloat(*op.ConsumptionRate)
+		}
+
+		if op.Status != nil {
+			// should be handle error case but for now trust value saved in database
+			i.Status = InvoiceStatus(*op.Status)
 		}
 	}
 
@@ -69,20 +76,44 @@ func (i *Invoice) SetIntAmountBilled(amountBilled int64) *Invoice {
 	return i
 }
 
-func (i *Invoice) SetDueDate(dueDate time.Time) (*Invoice, error) {
+func (i *Invoice) SetDueDate(dueDate time.Time) error {
 	now := time.Now()
 	if dueDate.Before(now) {
-		return i, &DomainError{
+		return &DomainError{
 			Kind:    Validation,
 			Message: "due date must be future date",
 		}
 	}
 
 	i.DueDate = dueDate
-	return i, nil
+	return nil
 }
 
-func (i *Invoice) Calc() {
-	// check empty value
-	// set calc result
+func (i *Invoice) Calc() error {
+	if i.AmountBilled.IsZero() || i.AmountBilled.IsNegative() {
+		return &DomainError{
+			Kind:    Validation,
+			Message: "amount billed must be positive",
+		}
+	}
+
+	if i.CommissionRate.IsZero() || i.CommissionRate.IsNegative() {
+		return &DomainError{
+			Kind:    Validation,
+			Message: "commission rate must be positive",
+		}
+	}
+
+	if i.ConsumptionRate.IsZero() || i.ConsumptionRate.IsNegative() {
+		return &DomainError{
+			Kind:    Validation,
+			Message: "consumption rate must be positive",
+		}
+	}
+
+	i.Commission = i.AmountBilled.Mul(i.CommissionRate)
+	i.ConsumptionTax = i.Commission.Mul(i.ConsumptionRate)
+	i.TotalAmount = i.AmountBilled.Add(i.Commission).Add(i.ConsumptionTax)
+
+	return nil
 }
