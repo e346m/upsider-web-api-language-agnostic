@@ -16,7 +16,7 @@ tags:
   - name: core
     description: coreコンテキストの適応
 paths:
-  /sign-in:
+  /session:
     post:
       responses:
         '200':
