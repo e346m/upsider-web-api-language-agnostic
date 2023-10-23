@@ -1,8 +1,10 @@
 package domains
 
-import "time"
+import (
+	"time"
+)
 
-type Organization struct {
+type Client struct {
 	ID             string
 	Name           string
 	Representative string
@@ -10,4 +12,5 @@ type Organization struct {
 	Address        string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	*Organization
 }

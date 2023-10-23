@@ -17,6 +17,6 @@ func New(db *sql.DB, cfg *config.Config, tp trace.Tracer) *http.Handler {
 	psqlClient := psql.NewPSQLClient(db, identifier)
 	authClient := auth.NewAuthClient(cfg.SecretKey())
 	usecase := usecases.NewUsecase(psqlClient, tp, authClient)
-	handler := http.NewHandler(usecase)
+	handler := http.NewHandler(usecase, authClient)
 	return handler
 }
