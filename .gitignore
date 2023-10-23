@@ -1,5 +1,4 @@
 .postgres
-tmp
 
 # dynamically created through shellHook
 result
