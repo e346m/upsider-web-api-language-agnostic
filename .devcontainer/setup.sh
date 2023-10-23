@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 # Set up global gitignore for direnv.
-mkdir -p ~/.config/git && printf '.direnv/\\n.envrc\\n' > ~/.config/git/ignore && git config --global core.excludesfile ~/.config/git/ignore
+mkdir -p ~/.config/git && printf '.direnv/\n.envrc\n' > ~/.config/git/ignore && git config --global core.excludesfile ~/.config/git/ignore
 # Install git-crypt for codespace hook?
 nix profile install nixpkgs#git-crypt
 # Install, set up and allow direnv in workspace.
