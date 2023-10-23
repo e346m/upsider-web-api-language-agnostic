@@ -10,6 +10,7 @@ import (
 	"github.com/e346m/upsider-wala/config"
 	"github.com/e346m/upsider-wala/di"
 	"github.com/go-playground/validator/v10"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -43,7 +44,12 @@ func main() {
 	{
 		api.GET("/health", healthCheck)
 		api.POST("/session", handler.SignIn)
-		api.POST("/invoices", handler.CreateInvoice)
+
+		private := api.Group("")
+		private.Use(echoJwtConfig(cfg.SecretKey()))
+		{
+			private.POST("/invoices", handler.CreateInvoice)
+		}
 	}
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
@@ -88,6 +94,12 @@ func initEcho() *echo.Echo {
 	e.Validator = &CustomValidator{validator: validator.New()}
 
 	return e
+}
+
+func echoJwtConfig(key string) echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(key),
+	})
 }
 
 func echoRecover() echo.MiddlewareFunc {
