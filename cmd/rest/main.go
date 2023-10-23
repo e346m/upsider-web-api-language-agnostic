@@ -9,7 +9,9 @@ import (
 
 	"github.com/e346m/upsider-wala/config"
 	"github.com/e346m/upsider-wala/di"
+	"github.com/e346m/upsider-wala/internal/adapters/auth"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -98,6 +100,9 @@ func initEcho() *echo.Echo {
 
 func echoJwtConfig(key string) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(auth.CustomClaims)
+		},
 		SigningKey: []byte(key),
 	})
 }

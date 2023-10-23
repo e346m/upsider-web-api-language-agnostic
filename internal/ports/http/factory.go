@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -11,11 +12,17 @@ import (
 
 type Handler struct {
 	usecase usecases.Usecase
+	auther  Auther
 }
 
-func NewHandler(usecase *usecases.Usecase) *Handler {
+type Auther interface {
+	GetPrincipal(context.Context) (*domains.Principal, error)
+}
+
+func NewHandler(usecase *usecases.Usecase, auther Auther) *Handler {
 	return &Handler{
 		usecase: *usecase,
+		auther:  auther,
 	}
 }
 

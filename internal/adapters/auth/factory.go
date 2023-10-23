@@ -2,8 +2,10 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/e346m/upsider-wala/internal/domains"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -12,14 +14,14 @@ type (
 		secret []byte
 	}
 
-	CustomToken struct {
+	CustomClaims struct {
 		JwtData
-		jwt.RegisteredClaims
+		*jwt.RegisteredClaims
 	}
 
 	JwtData struct {
 		Name      string
-		BelongsId string
+		BelongsID string
 	}
 )
 
@@ -53,12 +55,12 @@ func (a *AuthClient) GenerateToken(ctx context.Context, id, name, belongsID stri
 func (a AuthClient) generateCustomToken(id, name, belongsId string, issuedAt, expiresAt time.Time) (string, error) {
 	data := JwtData{
 		Name:      name,
-		BelongsId: belongsId,
+		BelongsID: belongsId,
 	}
 
-	claims := CustomToken{
+	claims := CustomClaims{
 		data,
-		jwt.RegisteredClaims{
+		&jwt.RegisteredClaims{
 			Issuer:    issuer,
 			Subject:   id,
 			IssuedAt:  jwt.NewNumericDate(issuedAt),
@@ -72,4 +74,21 @@ func (a AuthClient) generateCustomToken(id, name, belongsId string, issuedAt, ex
 	}
 
 	return tokenString, nil
+}
+
+func (a *AuthClient) GetPrincipal(
+	ctx context.Context,
+) (*domains.Principal, error) {
+	token, ok := ctx.Value("token").(*jwt.Token)
+	if !ok {
+		return nil, errors.New("invalid token")
+	}
+	claims, ok := token.Claims.(*CustomClaims)
+	if !ok {
+		return nil, errors.New("invalid claims was mapped")
+	}
+	return &domains.Principal{
+		ID:        claims.Subject,
+		BelongsID: claims.BelongsID,
+	}, nil
 }
