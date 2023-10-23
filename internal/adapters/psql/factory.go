@@ -15,6 +15,7 @@ type PSQL struct {
 }
 
 type Identifier interface {
+	NewIdString() string
 	StringToBinary(string) ([]byte, error)
 	BinaryToString([]byte) (string, error)
 }
@@ -24,6 +25,10 @@ func NewPSQLClient(db *sql.DB, id Identifier) *PSQL {
 		db: db,
 		id: id,
 	}
+}
+
+func (p *PSQL) GenID(ctx context.Context) string {
+	return p.id.NewIdString()
 }
 
 func (p *PSQL) getExecutor(ctx context.Context) boil.ContextExecutor {

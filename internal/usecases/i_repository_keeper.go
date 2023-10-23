@@ -10,6 +10,7 @@ type RepositoryKeeper interface {
 	Reader
 	Writer
 	Transactioner
+	IDGenerator
 }
 
 type Reader interface {
@@ -26,4 +27,8 @@ type Writer interface {
 
 type Transactioner interface {
 	DoInTx(context.Context, func(context.Context) (interface{}, error)) (interface{}, error)
+}
+
+type IDGenerator interface {
+	GenID(context.Context) string
 }

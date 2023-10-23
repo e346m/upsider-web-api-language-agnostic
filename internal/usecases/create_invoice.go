@@ -25,6 +25,7 @@ func (u *Usecase) CreateInvoice(ctx context.Context, amountBilled int64, dueDate
 	}
 
 	dom := domains.NewInvoice()
+	dom.ID = u.repo.GenID(ctx)
 	dom.Client = client
 	dom.Organization = org
 	dom.SetIntAmountBilled(amountBilled)
