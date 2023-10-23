@@ -11,7 +11,7 @@ func (u *Usecase) CreateInvoice(ctx context.Context, amountBilled int64, dueDate
 	ctx, span := u.tracer.Start(ctx, "CreateInvoice")
 	defer span.End()
 
-	// Is it better to check policy before going through thi usecase? It would be more simple to find client
+	// Is it better to check policy before going through this usecase? It would be more simple to find client
 	client, err := u.repo.GetClientByIDWithOrg(ctx, clientID, orgID)
 	if err != nil {
 		span.RecordError(err)
@@ -39,7 +39,11 @@ func (u *Usecase) CreateInvoice(ctx context.Context, amountBilled int64, dueDate
 		span.RecordError(err)
 		return nil, err
 	}
-	// save step
+	err = u.repo.SaveInvoice(ctx, dom)
+	if err != nil {
+		span.RecordError(err)
+		return nil, err
+	}
 
 	return dom, nil
 }

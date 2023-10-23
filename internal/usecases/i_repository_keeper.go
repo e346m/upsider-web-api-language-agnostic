@@ -21,6 +21,7 @@ type Reader interface {
 type Writer interface {
 	SaveOrganization(ctx context.Context, domain *domains.Organization) error
 	SaveMember(ctx context.Context, domain *domains.Member) error
+	SaveInvoice(ctx context.Context, domain *domains.Invoice) error
 }
 
 type Transactioner interface {
