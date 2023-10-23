@@ -19,7 +19,7 @@ func main() {
 	conn := initDB(cfg)
 	identifier := utils.NewIdentifier()
 
-	client := psql.NewPSQLClient(conn, identifier)
+	sql := psql.NewPSQLClient(conn, identifier)
 
 	defer func() {
 		conn.Close()
@@ -35,7 +35,7 @@ func main() {
 		PhoneNumber:     gofakeit.Phone(),
 		Address:         gofakeit.StreetName(),
 	}
-	err := client.SaveOrganization(ctx, org)
+	err := sql.SaveOrganization(ctx, org)
 	// Not long lived seed system
 	if err != nil {
 		fmt.Println("Already seeded")
@@ -49,8 +49,17 @@ func main() {
 		Organization: org,
 	}
 	domains.SetGeneratePassword("password", m)
-	client.SaveMember(ctx, m)
+	sql.SaveMember(ctx, m)
 	// clients
+	client := &domains.Client{
+		ID:              "01HDDPWNWNH3BECY9074BJ2T1G",
+		Name:            gofakeit.Company(),
+		Rrepresentative: gofakeit.Name(),
+		PhoneNumber:     gofakeit.Phone(),
+		Address:         gofakeit.StreetName(),
+		Organization:    org,
+	}
+	sql.SaveClient(ctx, client)
 	// invoice
 }
 

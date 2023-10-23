@@ -12,4 +12,5 @@ type Client struct {
 	Address         string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+	*Organization
 }
