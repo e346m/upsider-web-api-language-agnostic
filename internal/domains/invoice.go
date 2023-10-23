@@ -13,7 +13,7 @@ var (
 
 const (
 	waiting InvoiceStatus = iota
-	prcessing
+	ongoing
 	paid
 	failed
 )
@@ -116,4 +116,19 @@ func (i *Invoice) Calc() error {
 	i.TotalAmount = i.AmountBilled.Add(i.Commission).Add(i.ConsumptionTax)
 
 	return nil
+}
+
+func (is InvoiceStatus) String() string {
+	switch is {
+	case waiting:
+		return "未処理"
+	case ongoing:
+		return "処理中"
+	case paid:
+		return "支払い済み"
+	case failed:
+		return "エラー"
+	default:
+		return ""
+	}
 }
