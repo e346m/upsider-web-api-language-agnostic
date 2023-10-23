@@ -7,7 +7,7 @@
 		"extraNixConfig": "experimental-features = nix-command flakes,keep-outputs = true,keep-derivations = true"
 	  }
 	},
-	"onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/setup.sh || true",
+	"onCreateCommand": "./.devcontainer/setup.sh || true",
 	"customizations": {
 	  "vscode": {
 		"extensions": [
