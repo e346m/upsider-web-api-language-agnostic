@@ -43,6 +43,7 @@ func main() {
 	{
 		api.GET("/health", healthCheck)
 		api.POST("/session", handler.SignIn)
+		api.POST("/invoices", handler.CreateInvoice)
 	}
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
