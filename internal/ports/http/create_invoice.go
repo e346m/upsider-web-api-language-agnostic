@@ -28,8 +28,8 @@ func (h *Handler) CreateInvoice(c echo.Context) error {
 	}
 
 	res := &CreateInvoiceResponse{
-		AmountBilled: dom.AmountBilled.CoefficientInt64(),
-		TotalAmount:  dom.TotalAmount.CoefficientInt64(),
+		AmountBilled: dom.RoundUpAmountBilled(),
+		TotalAmount:  dom.RoundUpTotalAmount(),
 		ClientId:     dom.Client.ID,
 		DueDate:      dom.DueDate,
 		IssueDate:    dom.IssueDate,

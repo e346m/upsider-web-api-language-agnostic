@@ -118,6 +118,14 @@ func (i *Invoice) Calc() error {
 	return nil
 }
 
+func (i *Invoice) RoundUpAmountBilled() int64 {
+	return i.AmountBilled.RoundUp(0).IntPart()
+}
+
+func (i *Invoice) RoundUpTotalAmount() int64 {
+	return i.TotalAmount.RoundUp(0).IntPart()
+}
+
 func (is InvoiceStatus) String() string {
 	switch is {
 	case waiting:
