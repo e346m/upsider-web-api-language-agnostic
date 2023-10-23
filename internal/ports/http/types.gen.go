@@ -9,12 +9,12 @@ import (
 
 // CreateInvoiceResponse defines model for CreateInvoiceResponse.
 type CreateInvoiceResponse struct {
-	AmountBilled float32   `json:"amount_billed"`
+	AmountBilled int64     `json:"amount_billed"`
 	ClientId     string    `json:"client_id"`
 	DueDate      time.Time `json:"due_date"`
 	IssueDate    time.Time `json:"issue_date"`
 	Status       string    `json:"status"`
-	TotalAmount  float32   `json:"total_amount"`
+	TotalAmount  int64     `json:"total_amount"`
 }
 
 // SignInResponse defines model for SignInResponse.
@@ -24,7 +24,7 @@ type SignInResponse struct {
 
 // CreateInvoiceRequest defines model for CreateInvoiceRequest.
 type CreateInvoiceRequest struct {
-	AmountBilled float32   `json:"amount_billed" validate:"required"`
+	AmountBilled int64     `json:"amount_billed" validate:"required"`
 	ClientId     string    `json:"client_id" validate:"required"`
 	DueDate      time.Time `json:"due_date" validate:"required"`
 }
@@ -37,7 +37,7 @@ type SignInRequest struct {
 
 // CreateInvoiceJSONBody defines parameters for CreateInvoice.
 type CreateInvoiceJSONBody struct {
-	AmountBilled float32   `json:"amount_billed" validate:"required"`
+	AmountBilled int64     `json:"amount_billed" validate:"required"`
 	ClientId     string    `json:"client_id" validate:"required"`
 	DueDate      time.Time `json:"due_date" validate:"required"`
 }

@@ -53,7 +53,8 @@ components:
                 x-oapi-codegen-extra-tags:
                   validate: required
               amount_billed:
-                type: number
+                type: integer
+                format: int64
                 x-oapi-codegen-extra-tags:
                   validate: required
               due_date:
@@ -96,9 +97,11 @@ components:
               client_id:
                 type: string
               amount_billed:
-                type: number
+                type: integer
+                format: int64
               total_amount:
-                type: number
+                type: integer
+                format: int64
               due_date:
                 type: string
                 format: date-time
