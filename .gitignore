@@ -1,4 +1,6 @@
 .postgres
+tmp/*
+!tmp/.gitkeep
 
 # dynamically created through shellHook
 result
