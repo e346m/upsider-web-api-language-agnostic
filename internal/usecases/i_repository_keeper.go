@@ -14,6 +14,8 @@ type RepositoryKeeper interface {
 
 type Reader interface {
 	GetMemberByEmail(ctx context.Context, email string) (domain *domains.Member, err error)
+	GetClientByIDWithOrg(ctx context.Context, clientID, orgID string) (domain *domains.Client, err error)
+	GetOrganizationByID(ctx context.Context, orgID string) (domain *domains.Organization, err error)
 }
 
 type Writer interface {

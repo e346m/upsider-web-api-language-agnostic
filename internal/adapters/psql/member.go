@@ -42,11 +42,11 @@ func (p *PSQL) GetMemberByEmail(ctx context.Context, email string) (*domains.Mem
 	}
 
 	org := &domains.Organization{
-		ID:              orgId,
-		Name:            orgRow.Name,
-		Rrepresentative: orgRow.Representative,
-		PhoneNumber:     orgRow.PhoneNumber,
-		Address:         orgRow.Address,
+		ID:             orgId,
+		Name:           orgRow.Name,
+		Representative: orgRow.Representative,
+		PhoneNumber:    orgRow.PhoneNumber,
+		Address:        orgRow.Address,
 	}
 
 	dom.Organization = org
