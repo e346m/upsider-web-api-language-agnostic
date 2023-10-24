@@ -7,6 +7,21 @@ import (
 	"time"
 )
 
+// InvoiceItem defines model for InvoiceItem.
+type InvoiceItem struct {
+	AmountBilled int64     `json:"amount_billed"`
+	ClientId     string    `json:"client_id"`
+	DueDate      time.Time `json:"due_date"`
+	IssueDate    time.Time `json:"issue_date"`
+	TotalAmount  int64     `json:"total_amount"`
+}
+
+// FromParam defines model for fromParam.
+type FromParam = time.Time
+
+// ToParam defines model for toParam.
+type ToParam = time.Time
+
 // CreateInvoiceResponse defines model for CreateInvoiceResponse.
 type CreateInvoiceResponse struct {
 	AmountBilled int64     `json:"amount_billed"`
@@ -16,6 +31,9 @@ type CreateInvoiceResponse struct {
 	Status       string    `json:"status"`
 	TotalAmount  int64     `json:"total_amount"`
 }
+
+// InvoiceListResponse defines model for InvoiceListResponse.
+type InvoiceListResponse = []InvoiceItem
 
 // SignInResponse defines model for SignInResponse.
 type SignInResponse struct {
@@ -33,6 +51,12 @@ type CreateInvoiceRequest struct {
 type SignInRequest struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
+}
+
+// FetchInvoiceListParams defines parameters for FetchInvoiceList.
+type FetchInvoiceListParams struct {
+	From *FromParam `form:"from,omitempty" json:"from,omitempty"`
+	To   *ToParam   `form:"to,omitempty" json:"to,omitempty"`
 }
 
 // CreateInvoiceJSONBody defines parameters for CreateInvoice.
