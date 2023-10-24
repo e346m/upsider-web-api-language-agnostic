@@ -2,6 +2,8 @@ package psql
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	dbmodel "github.com/e346m/upsider-wala/db/schema"
 	"github.com/e346m/upsider-wala/internal/domains"
@@ -9,8 +11,101 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/volatiletech/sqlboiler/v4/types"
 )
+
+func (p *PSQL) GetInvoices(ctx context.Context, from, to time.Time, orgID string, status domains.InvoiceStatus) ([]*domains.Invoice, error) {
+	ex := p.getExecutor(ctx)
+
+	orgid, err := p.id.StringToBinary(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	where := dbmodel.InvoiceWhere
+	rows, err := dbmodel.Invoices(
+		where.Status.EQ(int16(status)),
+		where.DueDate.GTE(from),
+		where.DueDate.LTE(from),
+		where.OrganizationID.EQ(orgid),
+		qm.Load(dbmodel.InvoiceRels.Client),
+	).All(ctx, ex)
+	if err != nil {
+		return nil, err
+	}
+
+	doms := make([]*domains.Invoice, len(rows))
+	for idx, row := range rows {
+		invoice, err := p.mapInvoice(row)
+		if err != nil {
+			return nil, err
+		}
+		if row.R.Client != nil {
+			return nil, errors.New("internal error")
+		}
+		client, err := p.mapClient(row.R.Client)
+		if err != nil {
+			return nil, err
+		}
+
+		invoice.Client = client
+
+		doms[idx] = invoice
+	}
+
+	return doms, nil
+}
+
+func (p *PSQL) mapInvoice(row *dbmodel.Invoice) (*domains.Invoice, error) {
+	id, err := p.id.BinaryToString(row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	amountBilled, err := decimal.NewFromString(row.AmountBilled)
+	if err != nil {
+		return nil, err
+	}
+
+	totalAmount, err := decimal.NewFromString(row.TotalAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	commission, err := decimal.NewFromString(row.Commission)
+	if err != nil {
+		return nil, err
+	}
+
+	commissionRate, err := revertDecimal(row.CommissionRate)
+	if err != nil {
+		return nil, err
+	}
+
+	consumptionTax, err := decimal.NewFromString(row.ConsumptionTax.String)
+	if err != nil {
+		return nil, err
+	}
+
+	consumptionRate, err := revertNullDecimal(row.ConsumptionTaxRate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domains.Invoice{
+		ID:              id,
+		AmountBilled:    amountBilled,
+		TotalAmount:     totalAmount,
+		Commission:      commission,
+		CommissionRate:  commissionRate,
+		ConsumptionTax:  consumptionTax,
+		ConsumptionRate: consumptionRate,
+		IssueDate:       row.IssueDate,
+		DueDate:         row.DueDate,
+		Status:          domains.InvoiceStatus(row.Status),
+	}, nil
+}
 
 func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 	ex := p.getExecutor(ctx)
@@ -36,7 +131,6 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 		OrganizationID:     orgId,
 		TotalAmount:        dom.TotalAmount.String(),
 		AmountBilled:       dom.AmountBilled.String(),
-		Commission:         dom.Commission.String(),
 		CommissionRate:     converDecimals(dom.CommissionRate),
 		ConsumptionTax:     null.StringFrom(dom.ConsumptionTax.String()),
 		ConsumptionTaxRate: converNullDecimals(dom.ConsumptionRate),
@@ -51,6 +145,24 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 	}
 
 	return nil
+}
+
+func revertDecimal(d types.Decimal) (decimal.Decimal, error) {
+	intPart, ok := d.Int64()
+	if !ok {
+		return decimal.Zero, errors.New("cannot get int")
+	}
+	exp := -d.Scale()
+	return decimal.New(intPart, int32(exp)), nil
+}
+
+func revertNullDecimal(d types.NullDecimal) (decimal.Decimal, error) {
+	intPart, ok := d.Int64()
+	if !ok {
+		return decimal.Zero, errors.New("cannot get int")
+	}
+	exp := -d.Scale()
+	return decimal.New(intPart, int32(exp)), nil
 }
 
 func converDecimals(d decimal.Decimal) types.Decimal {
