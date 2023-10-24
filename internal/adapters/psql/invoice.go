@@ -15,7 +15,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/types"
 )
 
-func (p *PSQL) GetInvoices(ctx context.Context, from, to time.Time, orgID string, status domains.InvoiceStatus) ([]*domains.Invoice, error) {
+func (p *PSQL) GetInvoices(ctx context.Context, from, to *time.Time, orgID string, status domains.InvoiceStatus) ([]*domains.Invoice, error) {
 	ex := p.getExecutor(ctx)
 
 	orgid, err := p.id.StringToBinary(orgID)
@@ -24,12 +24,21 @@ func (p *PSQL) GetInvoices(ctx context.Context, from, to time.Time, orgID string
 	}
 
 	where := dbmodel.InvoiceWhere
-	rows, err := dbmodel.Invoices(
+	condition := []qm.QueryMod{
 		where.Status.EQ(int16(status)),
-		where.DueDate.GTE(from),
-		where.DueDate.LTE(from),
 		where.OrganizationID.EQ(orgid),
 		qm.Load(dbmodel.InvoiceRels.Client),
+	}
+	if from != nil && !from.IsZero() {
+		condition = append(condition, where.DueDate.GTE(*from))
+	}
+
+	if to != nil && !to.IsZero() {
+		condition = append(condition, where.DueDate.LTE(*to))
+	}
+
+	rows, err := dbmodel.Invoices(
+		condition...,
 	).All(ctx, ex)
 	if err != nil {
 		return nil, err
