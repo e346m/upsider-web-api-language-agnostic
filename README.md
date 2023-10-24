@@ -17,7 +17,11 @@
 
 unlockすることでconfig/secret.yamlが読み取れるようになります。
 
-2. 開発環境の立ち上げ
+2. seedデータの作成
+
+`make seed`
+
+3. 開発環境の立ち上げ
 
 `make dev`
 
@@ -44,7 +48,7 @@ test                           run all test
 
 #### データベースの変更について
 
-基本的な流れは以下のようになります。 
+基本的な流れは以下のようになります。
 1. `make migrate-create fileName=xxx`
 2. migration fileにDDLの実装
 3. `make migrate-up`
@@ -101,7 +105,7 @@ xfjqspcc9442hi0lm0szv3sw75zswvml-file-5.45/bin:/workspaces/upsider-web-api-langu
           jq
         ];
 
-       
+
       ...
     }
 }

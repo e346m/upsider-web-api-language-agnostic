@@ -42,6 +42,7 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 		ConsumptionTaxRate: converNullDecimals(dom.ConsumptionRate),
 		IssueDate:          dom.IssueDate,
 		DueDate:            dom.DueDate,
+		Status:             int16(dom.Status),
 	}
 
 	err = db.Insert(ctx, ex, boil.Infer())
