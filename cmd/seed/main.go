@@ -64,8 +64,8 @@ func main() {
 	sql.SaveClient(ctx, client)
 
 	// invoice
-	numOfRows := int(1e6)
-	var ids [1e6]string
+	numOfRows := int(1e5)
+	var ids [1e5]string
 
 	for i := 0; i < numOfRows; i++ {
 		ids[i] = sql.GenID(ctx)
