@@ -128,12 +128,20 @@ components:
       schema:
         type: string
         format: date-time
+      required: true
+      x-oapi-codegen-extra-tags:
+        query: from
+        validate: required
     toParam:
       in: query
       name: to
       schema:
         type: string
         format: date-time
+      required: true
+      x-oapi-codegen-extra-tags:
+        query: to
+        validate: required
   responses:
     InvoiceListResponse:
       description: response invoice list

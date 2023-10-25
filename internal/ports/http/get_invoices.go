@@ -26,8 +26,8 @@ func (h *Handler) GetInvoices(c echo.Context) error {
 
 	doms, err := h.usecase.GetInvoices(
 		ctx,
-		req.From,
-		req.To,
+		&req.From,
+		&req.To,
 		pal.BelongsID,
 	)
 	if err != nil {
