@@ -9,7 +9,6 @@ import (
 	"github.com/e346m/upsider-wala/internal/domains"
 	ericDecimal "github.com/ericlagergren/decimal"
 	"github.com/shopspring/decimal"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/volatiletech/sqlboiler/v4/types"
@@ -72,17 +71,17 @@ func (p *PSQL) mapInvoice(row *dbmodel.Invoice) (*domains.Invoice, error) {
 		return nil, err
 	}
 
-	amountBilled, err := decimal.NewFromString(row.AmountBilled)
+	amountBilled, err := revertDecimal(row.AmountBilled)
 	if err != nil {
 		return nil, err
 	}
 
-	totalAmount, err := decimal.NewFromString(row.TotalAmount)
+	totalAmount, err := revertDecimal(row.TotalAmount)
 	if err != nil {
 		return nil, err
 	}
 
-	commission, err := decimal.NewFromString(row.Commission)
+	commission, err := revertDecimal(row.Commission)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +91,7 @@ func (p *PSQL) mapInvoice(row *dbmodel.Invoice) (*domains.Invoice, error) {
 		return nil, err
 	}
 
-	consumptionTax, err := decimal.NewFromString(row.ConsumptionTax.String)
+	consumptionTax, err := revertNullDecimal(row.ConsumptionTax)
 	if err != nil {
 		return nil, err
 	}
@@ -138,14 +137,13 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 		ID:                 id,
 		ClientID:           clientId,
 		OrganizationID:     orgId,
-		TotalAmount:        dom.TotalAmount.String(),
-		AmountBilled:       dom.AmountBilled.String(),
-		CommissionRate:     converDecimals(dom.CommissionRate),
-		ConsumptionTax:     null.StringFrom(dom.ConsumptionTax.String()),
-		ConsumptionTaxRate: converNullDecimals(dom.ConsumptionRate),
+		TotalAmount:        convertDecimal(dom.TotalAmount),
+		AmountBilled:       convertDecimal(dom.AmountBilled),
+		CommissionRate:     convertDecimal(dom.CommissionRate),
+		ConsumptionTax:     convertNullDecimal(dom.ConsumptionTax),
+		ConsumptionTaxRate: convertNullDecimal(dom.ConsumptionRate),
 		IssueDate:          dom.IssueDate,
-		DueDate:            dom.DueDate,
-		Status:             int16(dom.Status),
+		DueDate:            dom.DueDate, Status: int16(dom.Status),
 	}
 
 	err = db.Insert(ctx, ex, boil.Infer())
@@ -174,7 +172,7 @@ func revertNullDecimal(d types.NullDecimal) (decimal.Decimal, error) {
 	return decimal.New(intPart, int32(exp)), nil
 }
 
-func converDecimals(d decimal.Decimal) types.Decimal {
+func convertDecimal(d decimal.Decimal) types.Decimal {
 	// ericlagergrenとshopspringのdecimalではscaleの指定が逆転しているため
 	//  shopDecimal.New(1234, -3) // 1.234
 	//  ericDecimal.New(1234, 3) // 1.234
@@ -182,7 +180,7 @@ func converDecimals(d decimal.Decimal) types.Decimal {
 	return types.NewDecimal(big)
 }
 
-func converNullDecimals(d decimal.Decimal) types.NullDecimal {
+func convertNullDecimal(d decimal.Decimal) types.NullDecimal {
 	// ericlagergrenとshopspringのdecimalではscaleの指定が逆転しているため
 	//  shopDecimal.New(1234, -3) // 1.234
 	//  ericDecimal.New(1234, 3) // 1.234
