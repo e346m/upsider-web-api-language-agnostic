@@ -71,7 +71,7 @@ func main() {
 		ids[i] = sql.GenID(ctx)
 	}
 
-	fmt.Println("ids")
+	fmt.Println("generate invoice ids")
 
 	now := time.Now()
 	eg, _ := errgroup.WithContext(ctx)
@@ -122,7 +122,9 @@ func main() {
 		return nil, nil
 	})
 
-	fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func initDB(cfg *config.Config) *sql.DB {
