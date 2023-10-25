@@ -18,7 +18,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -63,7 +63,10 @@ func healthCheck(c echo.Context) error {
 
 func initTracer(c *config.Config) *sdktrace.TracerProvider {
 	var exporter sdktrace.SpanExporter
-	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	// exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	exporter, err := jaeger.New(
+		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://localhost:14268/api/traces")),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
