@@ -30,7 +30,7 @@ migrate-up: ## run migration schema
 
 .PHONY: migrate-down
 migrate-down: ## rollback migration schema
-	@migrate -path ./db/migrations -database "$(DATABASE_URL)" down
+	@migrate -path ./db/migrations -database "$(DATABASE_URL)" down 1
 
 PHONY: sqlboiler-gen
 sqlboiler-gen: ## generate code from schema
