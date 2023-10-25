@@ -52,6 +52,10 @@ PHONY: test
 test: ## run all test
 	@go test -v ./... | $(COLORIZE_PASS) | $(COLORIZE_FAIL)
 
+PHONY: jaeger
+jaeger:
+	@docker run --rm -p 16686:16686 -p 14250:14250 -p 14268:14268 jaegertracing/all-in-one:1.29
+
 .PHONY: help
 help:
 	@echo 'Usage: make [target]'
