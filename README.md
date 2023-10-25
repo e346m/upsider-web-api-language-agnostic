@@ -27,6 +27,30 @@ unlockすることでconfig/secret.yamlが読み取れるようになります�
 
 goのREST APIサーバが立ち上がります。
 
+demoで利用するユーザや企業の情報
+```
+メールアドレス: test@example.com
+パスワード: password
+取引先企業ID：01HDDPWNWNH3BECY9074BJ2T1G
+```
+
+サンプルのcurlのスクリプト
+
+請求書の作成、取得ともに認証ヘッダーが必要になるので以下のコマンドで認証情報を保持して下さい。
+```
+ AUTH=$(curl -XPOST -H "Content-Type: application/json" localhost:8080/api/session -d '{"email": "test@example.com", "password": "password"}' | jq .token | xargs echo )
+```
+
+請求書の作成
+```
+ curl -XPOST -H "Content-Type: application/json" localhost:8080/api/invoices -d '{"amount_billed": 1000 , "due_date": "2023-11-01T14:00:00Z", "client_id": "01HDDPWNWNH3BECY9074BJ2T1G"}' -H "Authorization: Bearer ${AUTH}"
+```
+
+請求書の取得
+```
+  curl -XGET -H "Content-Type: application/json" "localhost:8080/api/invoices?to=2023-11-01T13:00:00Z&from=2023-10-25T12:00:00Z" -H "Authorization: Bearer ${AUTH}"
+```
+
 ### Applicationの開発について
 
 task runnnerとしてmakeを利用しています。 `make`と打つとhelpが参照できるので必要な操作についてはmakeを通して実行することができます。
@@ -58,7 +82,7 @@ test                           run all test
 
 #### エンドポイントの変更について
 
-基本的な流れは以下のようになります
+基本的な流れは以下のようになります。
 1. openapi.yamlの編集
 2. `make api-schema-type-gen`
 
@@ -76,7 +100,7 @@ nixで管理されていないバイナリはバージョンの不整合や、bu
 ...
 xfjqspcc9442hi0lm0szv3sw75zswvml-file-5.45/bin:/workspaces/upsider-web-api-language-agnostic/.direnv/bin:/vscode/bin/linux-alpine/f1b07bd25dfad64b0167beb15359ae573aecd2cc/bin/remote-cli:/home/vscode/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/vscode/.local/bin
 </pre>
-上記のような制約により再現性を高める仕組みが提供されていますが、反面、nixのパッケージレポジトリで管理されていないツールについては自前でビルドする必要があり、ビルド自体の難易度も高いのでチームの合意なく取り入れるのはやめましょう。　（nix自体の仕組み、各言語のビルドの仕組み、そのパッケージ自体のビルドの仕組みを把握することが難易度をあげている）
+上記のような制約により再現性を高める仕組みが提供されていますが、反面、nixのパッケージレポジトリで管理されていないツールについては自前でビルドする必要があり、ビルド自体の難易度も高いのでチームの合意なく取り入れるのはやめましょう。　（nix自体の仕組み、各言語のビルドの仕組み、そのパッケージ自体のビルドの仕組みを把握することが難易度をあげています）
 
 
 一応、簡単なケースで開発環境にライブラリ等を入れるような場合、[nix channel](https://search.nixos.org/packages)でほしいライブラリがあるかを調べて、以下のbuildInputsに追加するとターミナル上で利用できるようになります。
@@ -114,32 +138,30 @@ xfjqspcc9442hi0lm0szv3sw75zswvml-file-5.45/bin:/workspaces/upsider-web-api-langu
 ```
 
 ## Directory Structure
-アプリケーションの中心となるロジックはinternalに格納され以下の様な構造になっている。
+アプリケーションの中心となるロジックはinternalに格納され以下の様な構造になっています。
 <pre>
 ── internal
-│   ├── adapters //データストレージや、サードパーティのサービスにアクセスするような内から外に出る処理を管理する。
+│   ├── adapters //データストレージや、サードパーティのサービスにアクセスするような内から外に出る処理を管理。
 │   │   └── psql
 │   │       ├── factory.go
 │   │       ├── member.go
 │   │       └── organization.go
-│   ├── domains // 依存が極端にすくないビジネスロジックなどを管理する。
+│   ├── domains // 依存が極端にすくないビジネスロジックなどを管理。
 │   │   ├── error.go
 │   │   ├── member.go
 │   │   ├── member_test.go
 │   │   └── organization.go
-│   ├── ports // ユーザなどからリクエストなど、外から内にくる処理を管理する。
+│   ├── ports // ユーザなどからリクエストなど、外から内にくる処理を管理。
 │   │   └── http
 │   │       └── factory.go
-│   └── usecases // ビジネスロジックを組み合わせて達成されるユースケースを管理する。
+│   └── usecases // ビジネスロジックを組み合わせて達成されるユースケースを管理。
 │       ├── factory.go
 │       └── i_repository_keeper.go
 </pre>
 
-adapters層には依存することはなく（直接ファイルの中でimportすることはなく)インターフェースを通じてのみ必要な操作ができるようになっている。
-そのため、初期化のタイミングでadapter層で作成された構造体がdiされるという仕組みになっている。
+adapters層には依存することはなく（直接ファイルの中でimportすることはなく)インターフェースを通じてのみ必要な操作ができるようになっています。
+そのため、初期化のタイミングでadapter層で作成された構造体がdiされるという仕組みになっています。
 
-//エントリーポイントについて
-
-// configと環境変数について後で
-
-// desu masu統一
+##　Roadmap
+- [ ] 各エラーをドメインエラーにマッピングして、レスポンスの際には適切なステータスコードとメッセージにして返す用に整理する。
+- [ ] usecase層やport層のテスト
