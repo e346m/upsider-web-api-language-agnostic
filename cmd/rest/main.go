@@ -51,6 +51,7 @@ func main() {
 		private.Use(echoJwtConfig(cfg.SecretKey()))
 		{
 			private.POST("/invoices", handler.CreateInvoice)
+			private.GET("/invoices", handler.GetInvoices)
 		}
 	}
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))

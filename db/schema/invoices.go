@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -31,15 +30,15 @@ type Invoice struct {
 	IssueDate      time.Time `boil:"issue_date" json:"issue_date" toml:"issue_date" yaml:"issue_date"`
 	DueDate        time.Time `boil:"due_date" json:"due_date" toml:"due_date" yaml:"due_date"`
 	// system might accept dollar and save it as JPY
-	AmountBilled string `boil:"amount_billed" json:"amount_billed" toml:"amount_billed" yaml:"amount_billed"`
+	AmountBilled types.Decimal `boil:"amount_billed" json:"amount_billed" toml:"amount_billed" yaml:"amount_billed"`
 	// system might accept dollar and save it as JPY
-	TotalAmount string `boil:"total_amount" json:"total_amount" toml:"total_amount" yaml:"total_amount"`
+	TotalAmount types.Decimal `boil:"total_amount" json:"total_amount" toml:"total_amount" yaml:"total_amount"`
 	// system might accept dollar and save it as JPY
-	Commission string `boil:"commission" json:"commission" toml:"commission" yaml:"commission"`
+	Commission types.Decimal `boil:"commission" json:"commission" toml:"commission" yaml:"commission"`
 	// For the futuer flexisiblity 99.9999 - 0.0001
 	CommissionRate types.Decimal `boil:"commission_rate" json:"commission_rate" toml:"commission_rate" yaml:"commission_rate"`
 	// Null is accepted because transactions between japan and outside country does not require consumption tax
-	ConsumptionTax null.String `boil:"consumption_tax" json:"consumption_tax,omitempty" toml:"consumption_tax" yaml:"consumption_tax,omitempty"`
+	ConsumptionTax types.NullDecimal `boil:"consumption_tax" json:"consumption_tax,omitempty" toml:"consumption_tax" yaml:"consumption_tax,omitempty"`
 	// For the futuer flexisiblity 99.9999 - 0.0001
 	ConsumptionTaxRate types.NullDecimal `boil:"consumption_tax_rate" json:"consumption_tax_rate,omitempty" toml:"consumption_tax_rate" yaml:"consumption_tax_rate,omitempty"`
 	Status             int16             `boil:"status" json:"status" toml:"status" yaml:"status"`
@@ -137,44 +136,6 @@ func (w whereHelpertypes_Decimal) GTE(x types.Decimal) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 type whereHelpertypes_NullDecimal struct{ field string }
 
 func (w whereHelpertypes_NullDecimal) EQ(x types.NullDecimal) qm.QueryMod {
@@ -230,11 +191,11 @@ var InvoiceWhere = struct {
 	ClientID           whereHelper__byte
 	IssueDate          whereHelpertime_Time
 	DueDate            whereHelpertime_Time
-	AmountBilled       whereHelperstring
-	TotalAmount        whereHelperstring
-	Commission         whereHelperstring
+	AmountBilled       whereHelpertypes_Decimal
+	TotalAmount        whereHelpertypes_Decimal
+	Commission         whereHelpertypes_Decimal
 	CommissionRate     whereHelpertypes_Decimal
-	ConsumptionTax     whereHelpernull_String
+	ConsumptionTax     whereHelpertypes_NullDecimal
 	ConsumptionTaxRate whereHelpertypes_NullDecimal
 	Status             whereHelperint16
 	CreatedAt          whereHelpertime_Time
@@ -245,11 +206,11 @@ var InvoiceWhere = struct {
 	ClientID:           whereHelper__byte{field: "\"invoices\".\"client_id\""},
 	IssueDate:          whereHelpertime_Time{field: "\"invoices\".\"issue_date\""},
 	DueDate:            whereHelpertime_Time{field: "\"invoices\".\"due_date\""},
-	AmountBilled:       whereHelperstring{field: "\"invoices\".\"amount_billed\""},
-	TotalAmount:        whereHelperstring{field: "\"invoices\".\"total_amount\""},
-	Commission:         whereHelperstring{field: "\"invoices\".\"commission\""},
+	AmountBilled:       whereHelpertypes_Decimal{field: "\"invoices\".\"amount_billed\""},
+	TotalAmount:        whereHelpertypes_Decimal{field: "\"invoices\".\"total_amount\""},
+	Commission:         whereHelpertypes_Decimal{field: "\"invoices\".\"commission\""},
 	CommissionRate:     whereHelpertypes_Decimal{field: "\"invoices\".\"commission_rate\""},
-	ConsumptionTax:     whereHelpernull_String{field: "\"invoices\".\"consumption_tax\""},
+	ConsumptionTax:     whereHelpertypes_NullDecimal{field: "\"invoices\".\"consumption_tax\""},
 	ConsumptionTaxRate: whereHelpertypes_NullDecimal{field: "\"invoices\".\"consumption_tax_rate\""},
 	Status:             whereHelperint16{field: "\"invoices\".\"status\""},
 	CreatedAt:          whereHelpertime_Time{field: "\"invoices\".\"created_at\""},

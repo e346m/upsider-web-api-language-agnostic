@@ -12,10 +12,10 @@ var (
 )
 
 const (
-	waiting InvoiceStatus = iota
-	ongoing
-	paid
-	failed
+	Waiting InvoiceStatus = iota
+	Ongoing
+	Paid
+	Failed
 )
 
 type (
@@ -45,7 +45,7 @@ func NewInvoice(opts ...InvoiceOption) *Invoice {
 	i := &Invoice{
 		CommissionRate:  commissionRate,
 		ConsumptionRate: consumptionRate,
-		Status:          waiting,
+		Status:          Waiting,
 		IssueDate:       time.Now(),
 	}
 
@@ -128,13 +128,13 @@ func (i *Invoice) RoundUpTotalAmount() int64 {
 
 func (is InvoiceStatus) String() string {
 	switch is {
-	case waiting:
+	case Waiting:
 		return "未処理"
-	case ongoing:
+	case Ongoing:
 		return "処理中"
-	case paid:
+	case Paid:
 		return "支払い済み"
-	case failed:
+	case Failed:
 		return "エラー"
 	default:
 		return ""

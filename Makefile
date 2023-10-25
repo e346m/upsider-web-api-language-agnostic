@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 .PHONY: dev
-dev: download db migrate-up seed ## start api server
+dev: download db migrate-up ## start api server
 	@air -c air.toml
 
 .PHONY: db
@@ -17,7 +17,7 @@ db-down: ## stop postgres
 	@./result/bin/postgres.sh stop
 
 .PHONY: seed
-seed: ## stop postgres
+seed: db migrate-up ## stop postgres
 	@go run cmd/seed/main.go
 
 .PHONY: migrate-create
@@ -30,7 +30,7 @@ migrate-up: ## run migration schema
 
 .PHONY: migrate-down
 migrate-down: ## rollback migration schema
-	@migrate -path ./db/migrations -database "$(DATABASE_URL)" down
+	@migrate -path ./db/migrations -database "$(DATABASE_URL)" down 1
 
 PHONY: sqlboiler-gen
 sqlboiler-gen: ## generate code from schema

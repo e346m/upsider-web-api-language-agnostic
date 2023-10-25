@@ -71,3 +71,18 @@ func (p *PSQL) GetClientByIDWithOrg(ctx context.Context, clientID, orgID string)
 
 	return dom, nil
 }
+
+func (p *PSQL) mapClient(row *dbmodel.Client) (*domains.Client, error) {
+	id, err := p.id.BinaryToString(row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domains.Client{
+		ID:             id,
+		Name:           row.Name,
+		Representative: row.Representative,
+		PhoneNumber:    row.PhoneNumber,
+		Address:        row.Address,
+	}, nil
+}

@@ -153,26 +153,15 @@ var ClientBankAccountWhere = struct {
 
 // ClientBankAccountRels is where relationship names are stored.
 var ClientBankAccountRels = struct {
-	Client string
-}{
-	Client: "Client",
-}
+}{}
 
 // clientBankAccountR is where relationships are stored.
 type clientBankAccountR struct {
-	Client *Client `boil:"Client" json:"Client" toml:"Client" yaml:"Client"`
 }
 
 // NewStruct creates a new relationship struct
 func (*clientBankAccountR) NewStruct() *clientBankAccountR {
 	return &clientBankAccountR{}
-}
-
-func (r *clientBankAccountR) GetClient() *Client {
-	if r == nil {
-		return nil
-	}
-	return r.Client
 }
 
 // clientBankAccountL is where Load methods for each relationship are stored.
@@ -462,188 +451,6 @@ func (q clientBankAccountQuery) Exists(ctx context.Context, exec boil.ContextExe
 	}
 
 	return count > 0, nil
-}
-
-// Client pointed to by the foreign key.
-func (o *ClientBankAccount) Client(mods ...qm.QueryMod) clientQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.ClientID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return Clients(queryMods...)
-}
-
-// LoadClient allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (clientBankAccountL) LoadClient(ctx context.Context, e boil.ContextExecutor, singular bool, maybeClientBankAccount interface{}, mods queries.Applicator) error {
-	var slice []*ClientBankAccount
-	var object *ClientBankAccount
-
-	if singular {
-		var ok bool
-		object, ok = maybeClientBankAccount.(*ClientBankAccount)
-		if !ok {
-			object = new(ClientBankAccount)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeClientBankAccount)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeClientBankAccount))
-			}
-		}
-	} else {
-		s, ok := maybeClientBankAccount.(*[]*ClientBankAccount)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeClientBankAccount)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeClientBankAccount))
-			}
-		}
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &clientBankAccountR{}
-		}
-		if !queries.IsNil(object.ClientID) {
-			args = append(args, object.ClientID)
-		}
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &clientBankAccountR{}
-			}
-
-			for _, a := range args {
-				if queries.Equal(a, obj.ClientID) {
-					continue Outer
-				}
-			}
-
-			if !queries.IsNil(obj.ClientID) {
-				args = append(args, obj.ClientID)
-			}
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`clients`),
-		qm.WhereIn(`clients.id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Client")
-	}
-
-	var resultSlice []*Client
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Client")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for clients")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for clients")
-	}
-
-	if len(clientBankAccountAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Client = foreign
-		if foreign.R == nil {
-			foreign.R = &clientR{}
-		}
-		foreign.R.ClientBankAccounts = append(foreign.R.ClientBankAccounts, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if queries.Equal(local.ClientID, foreign.ID) {
-				local.R.Client = foreign
-				if foreign.R == nil {
-					foreign.R = &clientR{}
-				}
-				foreign.R.ClientBankAccounts = append(foreign.R.ClientBankAccounts, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// SetClient of the clientBankAccount to the related item.
-// Sets o.R.Client to related.
-// Adds o to related.R.ClientBankAccounts.
-func (o *ClientBankAccount) SetClient(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Client) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"client_bank_accounts\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"client_id"}),
-		strmangle.WhereClause("\"", "\"", 2, clientBankAccountPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	queries.Assign(&o.ClientID, related.ID)
-	if o.R == nil {
-		o.R = &clientBankAccountR{
-			Client: related,
-		}
-	} else {
-		o.R.Client = related
-	}
-
-	if related.R == nil {
-		related.R = &clientR{
-			ClientBankAccounts: ClientBankAccountSlice{o},
-		}
-	} else {
-		related.R.ClientBankAccounts = append(related.R.ClientBankAccounts, o)
-	}
-
-	return nil
 }
 
 // ClientBankAccounts retrieves all the records using an executor.

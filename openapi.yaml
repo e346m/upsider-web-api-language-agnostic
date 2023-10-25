@@ -38,8 +38,44 @@ paths:
         - core
       requestBody:
           $ref: "#/components/requestBodies/CreateInvoiceRequest"
+    get:
+      responses:
+        '200':
+          $ref: "#/components/responses/InvoiceListResponse"
+      operationId: fetchInvoiceList
+      description: 指定した期限に支払いが必要な請求書の一覧を返すエンドポイント
+      tags:
+        - core
+      parameters:
+        - $ref: '#/components/parameters/fromParam'
+        - $ref: '#/components/parameters/toParam'
+
 components:
   schemas:
+    InvoiceItem:
+      title: InvoiceItem
+      type: object
+      properties:
+        client_id:
+          type: string
+        amount_billed:
+          type: integer
+          format: int64
+        total_amount:
+          type: integer
+          format: int64
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+      required:
+        - client_id
+        - amount_billed
+        - total_amount
+        - due_date
+        - issue_date
   requestBodies:
     CreateInvoiceRequest:
       description: request for creating invoice
@@ -86,7 +122,27 @@ components:
               - email
               - password
   parameters:
+    fromParam:
+      in: query
+      name: from
+      schema:
+        type: string
+        format: date-time
+    toParam:
+      in: query
+      name: to
+      schema:
+        type: string
+        format: date-time
   responses:
+    InvoiceListResponse:
+      description: response invoice list
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/InvoiceItem'
     CreateInvoiceResponse:
       description: Sign in response
       content:
