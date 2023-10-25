@@ -36,10 +36,13 @@ func (c *Config) SecretKey() string {
 	return c.Secret.Key
 }
 
-func LoadConfig() (config *Config) {
+func LoadConfig(extraPath ...string) (config *Config) {
 	// secret
 	secret := viper.New()
 	secret.AddConfigPath("config")
+	for _, path := range extraPath {
+		secret.AddConfigPath(path)
+	}
 	secret.SetConfigName("secret")
 	secret.SetConfigType("yaml")
 
@@ -48,6 +51,9 @@ func LoadConfig() (config *Config) {
 	// config
 	nonSecret := viper.New()
 	nonSecret.AddConfigPath("config")
+	for _, path := range extraPath {
+		nonSecret.AddConfigPath(path)
+	}
 	nonSecret.SetConfigType("yaml")
 
 	config = loadConfig(config, nonSecret)

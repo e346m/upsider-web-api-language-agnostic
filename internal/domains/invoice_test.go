@@ -15,7 +15,7 @@ func TestNewInvoice(t *testing.T) {
 			wanted := &Invoice{
 				CommissionRate:  commissionRate,
 				ConsumptionRate: consumptionRate,
-				Status:          waiting,
+				Status:          Waiting,
 				IssueDate:       time.Now(),
 			}
 
@@ -32,7 +32,7 @@ func TestNewInvoice(t *testing.T) {
 		func(t *testing.T) {
 			cmmir := 1.12
 			conr := 80.0
-			status := uint8(paid)
+			status := uint8(Paid)
 			opt := InvoiceOption{
 				CommissionRate:  &cmmir,
 				ConsumptionRate: &conr,
@@ -41,7 +41,7 @@ func TestNewInvoice(t *testing.T) {
 			wanted := &Invoice{
 				CommissionRate:  decimal.NewFromFloat(cmmir),
 				ConsumptionRate: decimal.NewFromFloat(conr),
-				Status:          paid,
+				Status:          Paid,
 				IssueDate:       time.Now(),
 			}
 
@@ -57,7 +57,7 @@ func TestNewInvoice(t *testing.T) {
 		"Override some of invoice field with option",
 		func(t *testing.T) {
 			cmmir := 1.12
-			status := uint8(paid)
+			status := uint8(Paid)
 			opt := InvoiceOption{
 				CommissionRate: &cmmir,
 				Status:         &status,
@@ -65,7 +65,7 @@ func TestNewInvoice(t *testing.T) {
 			wanted := &Invoice{
 				CommissionRate:  decimal.NewFromFloat(cmmir),
 				ConsumptionRate: decimal.NewFromFloat(0.10),
-				Status:          paid,
+				Status:          Paid,
 				IssueDate:       time.Now(),
 			}
 

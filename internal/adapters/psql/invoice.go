@@ -128,21 +128,29 @@ func (p *PSQL) mapInvoice(row *dbmodel.Invoice) (*domains.Invoice, error) {
 }
 
 func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
+	_, err := p.saveInvoice(ctx, dom)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *PSQL) saveInvoice(ctx context.Context, dom *domains.Invoice) (*dbmodel.Invoice, error) {
 	ex := p.getExecutor(ctx)
 
 	id, err := p.id.StringToBinary(dom.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	orgId, err := p.id.StringToBinary(dom.Organization.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	clientId, err := p.id.StringToBinary(dom.Client.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	db := dbmodel.Invoice{
@@ -151,6 +159,7 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 		OrganizationID:     orgId,
 		TotalAmount:        convertDecimal(dom.TotalAmount),
 		AmountBilled:       convertDecimal(dom.AmountBilled),
+		Commission:         convertDecimal(dom.Commission),
 		CommissionRate:     convertDecimal(dom.CommissionRate),
 		ConsumptionTax:     convertNullDecimal(dom.ConsumptionTax),
 		ConsumptionTaxRate: convertNullDecimal(dom.ConsumptionRate),
@@ -160,28 +169,18 @@ func (p *PSQL) SaveInvoice(ctx context.Context, dom *domains.Invoice) error {
 
 	err = db.Insert(ctx, ex, boil.Infer())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &db, nil
 }
 
 func revertDecimal(d types.Decimal) (decimal.Decimal, error) {
-	intPart, ok := d.Int64()
-	if !ok {
-		return decimal.Zero, errors.New("cannot get int")
-	}
-	exp := -d.Scale()
-	return decimal.New(intPart, int32(exp)), nil
+	return decimal.NewFromString(d.String())
 }
 
 func revertNullDecimal(d types.NullDecimal) (decimal.Decimal, error) {
-	intPart, ok := d.Int64()
-	if !ok {
-		return decimal.Zero, errors.New("cannot get int")
-	}
-	exp := -d.Scale()
-	return decimal.New(intPart, int32(exp)), nil
+	return decimal.NewFromString(d.String())
 }
 
 func convertDecimal(d decimal.Decimal) types.Decimal {
