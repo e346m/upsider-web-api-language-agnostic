@@ -55,8 +55,8 @@ type SignInRequest struct {
 
 // FetchInvoiceListParams defines parameters for FetchInvoiceList.
 type FetchInvoiceListParams struct {
-	From *FromParam `form:"from,omitempty" json:"from,omitempty"`
-	To   *ToParam   `form:"to,omitempty" json:"to,omitempty"`
+	From FromParam `form:"from" json:"from" query:"from" validate:"required"`
+	To   ToParam   `form:"to" json:"to" query:"to" validate:"required"`
 }
 
 // CreateInvoiceJSONBody defines parameters for CreateInvoice.
