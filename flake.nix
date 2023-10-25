@@ -24,6 +24,7 @@
           air
           git-crypt
           jq
+          docker
         ];
 
         shellHook = ''
