@@ -12,6 +12,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/volatiletech/sqlboiler/v4/types"
+	"golang.org/x/sync/errgroup"
 )
 
 func (p *PSQL) GetInvoices(ctx context.Context, from, to *time.Time, orgID string, status domains.InvoiceStatus) ([]*domains.Invoice, error) {
@@ -44,22 +45,33 @@ func (p *PSQL) GetInvoices(ctx context.Context, from, to *time.Time, orgID strin
 	}
 
 	doms := make([]*domains.Invoice, len(rows))
+
+	eg, _ := errgroup.WithContext(ctx)
 	for idx, row := range rows {
-		invoice, err := p.mapInvoice(row)
-		if err != nil {
-			return nil, err
-		}
-		if row.R.Client != nil {
-			return nil, errors.New("internal error")
-		}
-		client, err := p.mapClient(row.R.Client)
-		if err != nil {
-			return nil, err
-		}
+		idx := idx
+		row := row
+		eg.Go(func() error {
+			invoice, err := p.mapInvoice(row)
+			if err != nil {
+				return err
+			}
+			if row.R.Client == nil {
+				return errors.New("internal error")
+			}
+			client, err := p.mapClient(row.R.Client)
+			if err != nil {
+				return err
+			}
 
-		invoice.Client = client
+			invoice.Client = client
 
-		doms[idx] = invoice
+			doms[idx] = invoice
+			return nil
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		return nil, err
 	}
 
 	return doms, nil
